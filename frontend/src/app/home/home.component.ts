@@ -7,7 +7,7 @@ import { UserService, User } from '../services/user.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { AddUserDialogComponent } from '../components/add-user-dialog/add-user-dialog.component';
+import { UserDialogComponent } from '../components/user-dialog/user-dialog.component';
 import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 
 @Component({
@@ -57,15 +57,16 @@ export class HomeComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('error:', error);
-        this.isLoading = false;
         this.showError('Failed to load users. The API server might be down or unreachable.');
+        console.error('HERE 2!! error load users:', error);
+        this.isLoading = false;
         this.users = []; // Clear the users array when there's an error
       }
     });
   }
 
   private showError(message: string) {
+    console.error('HERE 1! showError:', message);
     this.snackBar.open(message, 'Close', {
       duration: 5000,
       horizontalPosition: 'center',
@@ -75,7 +76,7 @@ export class HomeComponent implements OnInit {
   }
 
   addUser() {
-    const dialogRef = this.dialog.open(AddUserDialogComponent, {
+    const dialogRef = this.dialog.open(UserDialogComponent, {
       data: { user: null }
     });
 
@@ -95,7 +96,7 @@ export class HomeComponent implements OnInit {
   }
 
   editUser(user: User) {
-    const dialogRef = this.dialog.open(AddUserDialogComponent, {
+    const dialogRef = this.dialog.open(UserDialogComponent, {
       data: { user: { ...user } }
     });
 

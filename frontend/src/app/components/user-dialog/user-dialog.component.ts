@@ -20,15 +20,15 @@ import { User } from '../../services/user.service';
     CommonModule,
     MatDialogModule
   ],
-  templateUrl: './add-user-dialog.component.html',
-  styleUrls: ['./add-user-dialog.component.css']
+  templateUrl: './user-dialog.component.html',
+  styleUrls: ['./user-dialog.component.css']
 })
-export class AddUserDialogComponent {
+export class UserDialogComponent {
   userForm: FormGroup;
   isEditMode: boolean;
 
   constructor(
-    private dialogRef: MatDialogRef<AddUserDialogComponent>,
+    private dialogRef: MatDialogRef<UserDialogComponent>,
     private fb: FormBuilder,
     @Inject(MAT_DIALOG_DATA) public data: { user?: User }
   ) {
