@@ -36,9 +36,9 @@
     <mat-form-field appearance="outline">
       <mat-label>Status</mat-label>
       <mat-select formControlName="user_status" required>
-        <mat-option value="active">Active</mat-option>
-        <mat-option value="inactive">Inactive</mat-option>
-        <mat-option value="terminated">Terminated</mat-option>
+        <mat-option value="A">Active</mat-option>
+        <mat-option value="I">Inactive</mat-option>
+        <mat-option value="T">Terminated</mat-option>
       </mat-select>
       <mat-error *ngIf="userForm.get('user_status')?.invalid && userForm.get('user_status')?.touched">
         {{ getErrorMessage('user_status') }}

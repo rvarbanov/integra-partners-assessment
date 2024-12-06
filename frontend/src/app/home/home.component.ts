@@ -26,7 +26,7 @@ import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dia
 })
 export class HomeComponent implements OnInit {
   displayedColumns: string[] = [
-    'id', 
+    'user_id', 
     'user_name', 
     'first_name', 
     'last_name', 
@@ -51,11 +51,13 @@ export class HomeComponent implements OnInit {
   loadUsers() {
     this.isLoading = true;
     this.userService.getUsers().subscribe({
-      next: (users) => {
-        this.users = users;
+      next: (data) => {
+        console.log('loaded data:', data);
+        this.users = data;
         this.isLoading = false;
       },
       error: (error) => {
+        console.error('error:', error);
         this.isLoading = false;
         this.showError('Failed to load users. The API server might be down or unreachable.');
         this.users = []; // Clear the users array when there's an error
@@ -65,7 +67,7 @@ export class HomeComponent implements OnInit {
 
   private showError(message: string) {
     this.snackBar.open(message, 'Close', {
-      duration: 5000,  // Show for 5 seconds
+      duration: 5000,
       horizontalPosition: 'center',
       verticalPosition: 'bottom',
       panelClass: ['error-snackbar']
@@ -82,7 +84,7 @@ export class HomeComponent implements OnInit {
         this.userService.addUser(result).subscribe({
           next: (newUser) => {
             this.users = [...this.users, newUser];
-            console.log('User added successfully');
+            console.log('User added successfully:', newUser);
           },
           error: (error) => {
             console.error('Error adding user:', error);
@@ -99,10 +101,10 @@ export class HomeComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        const updatedUser = { ...result, id: user.id };
+        const updatedUser = { ...result, user_id: user.user_id };
         this.userService.updateUser(updatedUser).subscribe({
           next: (response) => {
-            const index = this.users.findIndex(u => u.id === user.id);
+            const index = this.users.findIndex(u => u.user_id === user.user_id);
             if (index !== -1) {
               this.users[index] = response;
               this.users = [...this.users];
@@ -127,9 +129,9 @@ export class HomeComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.userService.deleteUser(user.id).subscribe({
+        this.userService.deleteUser(user.user_id).subscribe({
           next: () => {
-            this.users = this.users.filter(u => u.id !== user.id);
+            this.users = this.users.filter(u => u.user_id !== user.user_id);
             console.log('User deleted successfully');
           },
           error: (error) => {

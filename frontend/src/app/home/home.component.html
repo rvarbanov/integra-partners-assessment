@@ -13,10 +13,9 @@
     </div>
 
     <table mat-table [dataSource]="users" class="mat-elevation-z8" [class.loading]="isLoading">
-      <!-- ID Column -->
-      <ng-container matColumnDef="id">
+      <ng-container matColumnDef="user_id">
         <th mat-header-cell *matHeaderCellDef>ID</th>
-        <td mat-cell *matCellDef="let user">{{user.id}}</td>
+        <td mat-cell *matCellDef="let user">{{user.user_id}}</td>
       </ng-container>
 
       <!-- Username Column -->

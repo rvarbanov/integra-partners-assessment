@@ -9,27 +9,35 @@ import (
 	"sort"
 	"strings"
 
-	"backend/internal/config"
-
 	_ "github.com/lib/pq"
 )
 
 func main() {
-	cfg := config.Database{
-		Host: "localhost",
-		Port: "5432",
-		User: "postgres",
-		Pass: "postgres",
-		Name: "userdb",
+	// Use the same environment variables as docker-compose
+	cfg := struct {
+		Host   string
+		Port   string
+		User   string
+		Pass   string
+		Name   string
+		InitDB string
+	}{
+		Host:   getEnv("DB_HOST", "localhost"), // localhost for local dev
+		Port:   getEnv("DB_PORT", "5432"),
+		User:   getEnv("DB_USER", "postgres"),
+		Pass:   getEnv("DB_PASSWORD", "postgres"), // Match docker-compose env var name
+		Name:   getEnv("DB_NAME", "userdb"),
+		InitDB: "postgres", // Initial database to connect to
 	}
 
 	// First connect to postgres database to create our database
 	dataSourceName := fmt.Sprintf(
-		"host=%s port=%s user=%s password=%s dbname=postgres sslmode=disable",
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		cfg.Host,
 		cfg.Port,
 		cfg.User,
 		cfg.Pass,
+		cfg.InitDB,
 	)
 
 	db, err := sql.Open("postgres", dataSourceName)
@@ -98,4 +106,11 @@ func main() {
 	}
 
 	fmt.Println("All migrations completed successfully!")
+}
+
+func getEnv(key, fallback string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return fallback
 }

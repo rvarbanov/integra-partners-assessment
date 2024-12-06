@@ -24,6 +24,13 @@ func NewAPI(ctrl controller.ControllerInterface) *API {
 func (api *API) Start(cfg config.API) {
 	e := echo.New()
 	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins: []string{"http://localhost:4200"}, // Your Angular app's URL
+		AllowMethods: []string{http.MethodGet, http.MethodPut, http.MethodPost, http.MethodDelete},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 
 	e.GET("/api/status", api.getStatus)
 
