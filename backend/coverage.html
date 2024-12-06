@@ -1,0 +1,964 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>server: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">backend/cmd/server/main.go (0.0%)</option>
+				
+				<option value="file1">backend/internal/api/api.go (24.1%)</option>
+				
+				<option value="file2">backend/internal/config/config.go (0.0%)</option>
+				
+				<option value="file3">backend/internal/controller/controller.go (23.1%)</option>
+				
+				<option value="file4">backend/internal/controller/mock/mock_controller.go (47.4%)</option>
+				
+				<option value="file5">backend/internal/dao/dao.go (0.0%)</option>
+				
+				<option value="file6">backend/internal/dao/mock/mock_dao.go (47.4%)</option>
+				
+				<option value="file7">backend/internal/db/db.go (14.8%)</option>
+				
+				<option value="file8">backend/internal/db/mock_db.go (0.0%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package main
+
+import (
+        "backend/internal/api"
+        "backend/internal/config"
+        "backend/internal/controller"
+        "backend/internal/dao"
+        "backend/internal/db"
+)
+
+func main() <span class="cov0" title="0">{
+        // todo: load config
+        cfg := config.Load()
+
+        // todo: get db connection
+        db := db.NewDB(cfg.Database)
+
+        dao := dao.NewDao(db)
+
+        controller := controller.NewController(dao)
+
+        api := api.NewAPI(controller)
+
+        api.Start(cfg.API)
+
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package api
+
+import (
+        "backend/internal/config"
+        "backend/internal/controller"
+        "backend/internal/model"
+        "fmt"
+        "net/http"
+        "strconv"
+
+        "github.com/labstack/echo/v4"
+        "github.com/labstack/echo/v4/middleware"
+)
+
+type API struct {
+        ctrl controller.ControllerInterface
+}
+
+func NewAPI(ctrl controller.ControllerInterface) *API <span class="cov8" title="1">{
+        return &amp;API{ctrl: ctrl}
+}</span>
+
+func (api *API) Start(cfg config.API) <span class="cov0" title="0">{
+        e := echo.New()
+        // todo: add middleware
+        // - logging
+        // - cors
+
+        e.Use(middleware.Logger())
+
+        e.GET("/status", api.getStatus)
+
+        e.POST("/user", api.createUser)
+        e.GET("/user/:id", api.getUser)
+        e.PUT("/user/:id", api.updateUser)
+        e.DELETE("/user/:id", api.deleteUser)
+
+        e.GET("/users", api.getUsers)
+
+        e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", cfg.Port)))
+}</span>
+
+func (api *API) getStatus(c echo.Context) error <span class="cov8" title="1">{
+        resp := struct {
+                Status string `json:"status"`
+        }{
+                Status: "ok",
+        }
+
+        return c.JSON(http.StatusOK, resp)
+}</span>
+
+func (api *API) createUser(c echo.Context) error <span class="cov8" title="1">{
+        user := model.User{}
+        err := c.Bind(&amp;user)
+        if err != nil </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusBadRequest, model.Response{
+                        ErrorMessage: err.Error(),
+                })
+        }</span>
+
+        <span class="cov8" title="1">ID, err := api.ctrl.CreateUser(user)
+        if err != nil </span><span class="cov8" title="1">{
+                return c.JSON(http.StatusInternalServerError, model.Response{
+                        ErrorMessage: err.Error(),
+                })
+        }</span>
+
+        <span class="cov8" title="1">return c.JSON(http.StatusOK, model.Response{Data: ID})</span>
+}
+
+func (api *API) getUser(c echo.Context) error <span class="cov0" title="0">{
+        ID, err := getParamID(c)
+        if err != nil </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusBadRequest, model.Response{
+                        ErrorMessage: err.Error(),
+                })
+        }</span>
+
+        <span class="cov0" title="0">user, err := api.ctrl.GetUser(ID)
+        if err != nil </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusInternalServerError, model.Response{
+                        ErrorMessage: err.Error(),
+                })
+        }</span>
+
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, model.Response{Data: user})</span>
+}
+
+func (api *API) updateUser(c echo.Context) error <span class="cov0" title="0">{
+        ID, err := getParamID(c)
+        if err != nil </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusBadRequest, model.Response{
+                        ErrorMessage: err.Error(),
+                })
+        }</span>
+
+        <span class="cov0" title="0">user := model.User{}
+        err = c.Bind(&amp;user)
+        if err != nil </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusBadRequest, model.Response{
+                        ErrorMessage: err.Error(),
+                })
+        }</span>
+
+        <span class="cov0" title="0">user, err = api.ctrl.UpdateUser(ID, user)
+        if err != nil </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusInternalServerError, model.Response{
+                        ErrorMessage: err.Error(),
+                })
+        }</span>
+
+        <span class="cov0" title="0">return c.JSON(http.StatusOK, model.Response{Data: user})</span>
+}
+
+func (api *API) deleteUser(c echo.Context) error <span class="cov0" title="0">{
+        ID, err := getParamID(c)
+        if err != nil </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusBadRequest, model.Response{
+                        ErrorMessage: err.Error(),
+                })
+        }</span>
+
+        <span class="cov0" title="0">err = api.ctrl.DeleteUser(ID)
+        if err != nil </span><span class="cov0" title="0">{
+                return c.JSON(http.StatusInternalServerError, model.Response{
+                        ErrorMessage: err.Error(),
+                })
+        }</span>
+
+        <span class="cov0" title="0">return c.NoContent(http.StatusNoContent)</span>
+}
+
+func (api *API) getUsers(c echo.Context) error <span class="cov8" title="1">{
+        users, err := api.ctrl.GetUsers()
+        if err != nil </span><span class="cov8" title="1">{
+                return c.JSON(http.StatusInternalServerError, model.Response{
+                        ErrorMessage: err.Error(),
+                })
+        }</span>
+
+        <span class="cov8" title="1">return c.JSON(http.StatusOK, model.Response{Data: users})</span>
+}
+
+func getParamID(c echo.Context) (int, error) <span class="cov0" title="0">{
+        id := c.Param("id")
+        if id == "" </span><span class="cov0" title="0">{
+                return 0, fmt.Errorf("id is required")
+        }</span>
+
+        <span class="cov0" title="0">ID, err := strconv.Atoi(id)
+        if err != nil </span><span class="cov0" title="0">{
+                return 0, err
+        }</span>
+
+        <span class="cov0" title="0">if ID &lt;= 0 </span><span class="cov0" title="0">{
+                return 0, fmt.Errorf("id must be a positive integer")
+        }</span>
+
+        <span class="cov0" title="0">return ID, nil</span>
+}
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package config
+
+import "os"
+
+type Config struct {
+        Database Database
+        API      API
+}
+
+type Database struct {
+        Host string
+        Port string
+        User string
+        Pass string
+}
+
+type API struct {
+        Port string
+}
+
+func Load() *Config <span class="cov0" title="0">{
+        // todo: load config from .env
+
+        return &amp;Config{
+                Database: Database{
+                        Host: os.Getenv("DB_HOST"),
+                        Port: os.Getenv("DB_PORT"),
+                        User: os.Getenv("DB_USER"),
+                        Pass: os.Getenv("DB_PASS"),
+                },
+                API: API{
+                        Port: os.Getenv("API_PORT"),
+                },
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package controller
+
+import (
+        "fmt"
+
+        "backend/internal/dao"
+        "backend/internal/model"
+)
+
+type ControllerInterface interface {
+        CreateUser(user model.User) (int, error)
+        GetUser(ID int) (model.User, error)
+        UpdateUser(ID int, user model.User) (model.User, error)
+        DeleteUser(ID int) error
+        GetUsers() ([]model.User, error)
+}
+
+type Controller struct {
+        dao dao.DaoInterface
+}
+
+func NewController(dao dao.DaoInterface) *Controller <span class="cov8" title="1">{
+        return &amp;Controller{dao: dao}
+}</span>
+
+func (ctrl *Controller) CreateUser(user model.User) (int, error) <span class="cov8" title="1">{
+        return ctrl.dao.CreateUser(user)
+}</span>
+
+func (ctrl *Controller) GetUser(ID int) (model.User, error) <span class="cov8" title="1">{
+        return ctrl.dao.GetUser(ID)
+}</span>
+
+func (ctrl *Controller) UpdateUser(ID int, user model.User) (model.User, error) <span class="cov0" title="0">{
+        existingUser, err := ctrl.GetUser(ID)
+        if err != nil </span><span class="cov0" title="0">{
+                return model.User{}, err
+        }</span>
+
+        <span class="cov0" title="0">if existingUser.ID != ID </span><span class="cov0" title="0">{
+                return model.User{}, fmt.Errorf("user not found")
+        }</span>
+
+        <span class="cov0" title="0">if user.Username == existingUser.Username </span><span class="cov0" title="0">{
+                return model.User{}, fmt.Errorf("username already exists")
+        }</span>
+
+        <span class="cov0" title="0">return ctrl.dao.UpdateUser(ID, user)</span>
+}
+
+func (ctrl *Controller) DeleteUser(ID int) error <span class="cov0" title="0">{
+        return ctrl.dao.DeleteUser(ID)
+}</span>
+
+func (ctrl *Controller) GetUsers() ([]model.User, error) <span class="cov0" title="0">{
+        return ctrl.dao.GetUsers()
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: internal/controller/controller.go
+
+// Package mock_controller is a generated GoMock package.
+package mock_controller
+
+import (
+        model "backend/internal/model"
+        reflect "reflect"
+
+        gomock "github.com/golang/mock/gomock"
+)
+
+// MockControllerInterface is a mock of ControllerInterface interface.
+type MockControllerInterface struct {
+        ctrl     *gomock.Controller
+        recorder *MockControllerInterfaceMockRecorder
+}
+
+// MockControllerInterfaceMockRecorder is the mock recorder for MockControllerInterface.
+type MockControllerInterfaceMockRecorder struct {
+        mock *MockControllerInterface
+}
+
+// NewMockControllerInterface creates a new mock instance.
+func NewMockControllerInterface(ctrl *gomock.Controller) *MockControllerInterface <span class="cov8" title="1">{
+        mock := &amp;MockControllerInterface{ctrl: ctrl}
+        mock.recorder = &amp;MockControllerInterfaceMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockControllerInterface) EXPECT() *MockControllerInterfaceMockRecorder <span class="cov8" title="1">{
+        return m.recorder
+}</span>
+
+// CreateUser mocks base method.
+func (m *MockControllerInterface) CreateUser(user model.User) (int, error) <span class="cov8" title="1">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "CreateUser", user)
+        ret0, _ := ret[0].(int)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockControllerInterfaceMockRecorder) CreateUser(user interface{}) *gomock.Call <span class="cov8" title="1">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockControllerInterface)(nil).CreateUser), user)
+}</span>
+
+// DeleteUser mocks base method.
+func (m *MockControllerInterface) DeleteUser(ID int) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "DeleteUser", ID)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// DeleteUser indicates an expected call of DeleteUser.
+func (mr *MockControllerInterfaceMockRecorder) DeleteUser(ID interface{}) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockControllerInterface)(nil).DeleteUser), ID)
+}</span>
+
+// GetUser mocks base method.
+func (m *MockControllerInterface) GetUser(ID int) (model.User, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "GetUser", ID)
+        ret0, _ := ret[0].(model.User)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// GetUser indicates an expected call of GetUser.
+func (mr *MockControllerInterfaceMockRecorder) GetUser(ID interface{}) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockControllerInterface)(nil).GetUser), ID)
+}</span>
+
+// GetUsers mocks base method.
+func (m *MockControllerInterface) GetUsers() ([]model.User, error) <span class="cov8" title="1">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "GetUsers")
+        ret0, _ := ret[0].([]model.User)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// GetUsers indicates an expected call of GetUsers.
+func (mr *MockControllerInterfaceMockRecorder) GetUsers() *gomock.Call <span class="cov8" title="1">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockControllerInterface)(nil).GetUsers))
+}</span>
+
+// UpdateUser mocks base method.
+func (m *MockControllerInterface) UpdateUser(ID int, user model.User) (model.User, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "UpdateUser", ID, user)
+        ret0, _ := ret[0].(model.User)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// UpdateUser indicates an expected call of UpdateUser.
+func (mr *MockControllerInterfaceMockRecorder) UpdateUser(ID, user interface{}) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockControllerInterface)(nil).UpdateUser), ID, user)
+}</span>
+</pre>
+		
+		<pre class="file" id="file5" style="display: none">package dao
+
+import (
+        "backend/internal/db"
+        "backend/internal/model"
+)
+
+type DaoInterface interface {
+        GetUsers() ([]model.User, error)
+        GetUser(ID int) (model.User, error)
+        CreateUser(user model.User) (int, error)
+        UpdateUser(ID int, user model.User) (model.User, error)
+        DeleteUser(ID int) error
+}
+
+type Dao struct {
+        DB db.DBInterface
+}
+
+func NewDao(db db.DBInterface) *Dao <span class="cov0" title="0">{
+        return &amp;Dao{DB: db}
+}</span>
+
+func (d *Dao) GetUsers() ([]model.User, error) <span class="cov0" title="0">{
+        return d.DB.GetUsers()
+}</span>
+
+func (d *Dao) GetUser(ID int) (model.User, error) <span class="cov0" title="0">{
+        return d.DB.GetUser(ID)
+}</span>
+
+func (d *Dao) CreateUser(user model.User) (int, error) <span class="cov0" title="0">{
+        return d.DB.CreateUser(user)
+}</span>
+
+func (d *Dao) UpdateUser(ID int, user model.User) (model.User, error) <span class="cov0" title="0">{
+        return d.DB.UpdateUser(ID, user)
+}</span>
+
+func (d *Dao) DeleteUser(ID int) error <span class="cov0" title="0">{
+        return d.DB.DeleteUser(ID)
+}</span>
+</pre>
+		
+		<pre class="file" id="file6" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: internal/dao/dao.go
+
+// Package mock_dao is a generated GoMock package.
+package mock_dao
+
+import (
+        model "backend/internal/model"
+        reflect "reflect"
+
+        gomock "github.com/golang/mock/gomock"
+)
+
+// MockDaoInterface is a mock of DaoInterface interface.
+type MockDaoInterface struct {
+        ctrl     *gomock.Controller
+        recorder *MockDaoInterfaceMockRecorder
+}
+
+// MockDaoInterfaceMockRecorder is the mock recorder for MockDaoInterface.
+type MockDaoInterfaceMockRecorder struct {
+        mock *MockDaoInterface
+}
+
+// NewMockDaoInterface creates a new mock instance.
+func NewMockDaoInterface(ctrl *gomock.Controller) *MockDaoInterface <span class="cov8" title="1">{
+        mock := &amp;MockDaoInterface{ctrl: ctrl}
+        mock.recorder = &amp;MockDaoInterfaceMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockDaoInterface) EXPECT() *MockDaoInterfaceMockRecorder <span class="cov8" title="1">{
+        return m.recorder
+}</span>
+
+// CreateUser mocks base method.
+func (m *MockDaoInterface) CreateUser(user model.User) (int, error) <span class="cov8" title="1">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "CreateUser", user)
+        ret0, _ := ret[0].(int)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockDaoInterfaceMockRecorder) CreateUser(user interface{}) *gomock.Call <span class="cov8" title="1">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockDaoInterface)(nil).CreateUser), user)
+}</span>
+
+// DeleteUser mocks base method.
+func (m *MockDaoInterface) DeleteUser(ID int) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "DeleteUser", ID)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// DeleteUser indicates an expected call of DeleteUser.
+func (mr *MockDaoInterfaceMockRecorder) DeleteUser(ID interface{}) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockDaoInterface)(nil).DeleteUser), ID)
+}</span>
+
+// GetUser mocks base method.
+func (m *MockDaoInterface) GetUser(ID int) (model.User, error) <span class="cov8" title="1">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "GetUser", ID)
+        ret0, _ := ret[0].(model.User)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// GetUser indicates an expected call of GetUser.
+func (mr *MockDaoInterfaceMockRecorder) GetUser(ID interface{}) *gomock.Call <span class="cov8" title="1">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockDaoInterface)(nil).GetUser), ID)
+}</span>
+
+// GetUsers mocks base method.
+func (m *MockDaoInterface) GetUsers() ([]model.User, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "GetUsers")
+        ret0, _ := ret[0].([]model.User)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// GetUsers indicates an expected call of GetUsers.
+func (mr *MockDaoInterfaceMockRecorder) GetUsers() *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockDaoInterface)(nil).GetUsers))
+}</span>
+
+// UpdateUser mocks base method.
+func (m *MockDaoInterface) UpdateUser(ID int, user model.User) (model.User, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "UpdateUser", ID, user)
+        ret0, _ := ret[0].(model.User)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// UpdateUser indicates an expected call of UpdateUser.
+func (mr *MockDaoInterfaceMockRecorder) UpdateUser(ID, user interface{}) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockDaoInterface)(nil).UpdateUser), ID, user)
+}</span>
+</pre>
+		
+		<pre class="file" id="file7" style="display: none">package db
+
+import (
+        "database/sql"
+        "fmt"
+        "log"
+
+        "backend/internal/config"
+        "backend/internal/model"
+
+        sq "github.com/Masterminds/squirrel"
+)
+
+type DBInterface interface {
+        GetUser(ID int) (model.User, error)
+        GetUsers() ([]model.User, error)
+        CreateUser(user model.User) (int, error)
+        UpdateUser(ID int, user model.User) (model.User, error)
+        DeleteUser(ID int) error
+}
+
+type DB struct {
+        db *sql.DB
+}
+
+func NewDB(config config.Database) DBInterface <span class="cov0" title="0">{
+        dataSourceName := fmt.Sprintf(
+                "host=%s port=%s user=%s password=%s dbname=postgres sslmode=disable",
+                config.Host,
+                config.Port,
+                config.User,
+                config.Pass)
+
+        db, err := sql.Open("postgres", dataSourceName)
+        if err != nil </span><span class="cov0" title="0">{
+                log.Fatal(err)
+        }</span>
+        <span class="cov0" title="0">return &amp;DB{db: db}</span>
+}
+
+func (d *DB) GetUser(ID int) (model.User, error) <span class="cov8" title="1">{
+        var user model.User
+
+        sqGetUser := sq.Select("*").
+                From("users").
+                Where(sq.Eq{"id": ID})
+
+        query, args, err := sqGetUser.ToSql()
+        if err != nil </span><span class="cov0" title="0">{
+                return user, err
+        }</span>
+
+        <span class="cov8" title="1">row := d.db.QueryRow(query, args...)
+        err = row.Scan(
+                &amp;user.ID,
+                &amp;user.Username,
+                &amp;user.Firstname,
+                &amp;user.Lastname,
+                &amp;user.Email,
+                &amp;user.Status,
+                &amp;user.Department,
+        )
+        if err != nil </span><span class="cov8" title="1">{
+                return user, err
+        }</span>
+
+        <span class="cov8" title="1">return user, err</span>
+}
+
+func (d *DB) GetUsers() ([]model.User, error) <span class="cov0" title="0">{
+        var users []model.User
+
+        sqGetUsers := sq.Select("*").From("users")
+
+        query, args, err := sqGetUsers.ToSql()
+        if err != nil </span><span class="cov0" title="0">{
+                return users, err
+        }</span>
+
+        <span class="cov0" title="0">rows, err := d.db.Query(query, args...)
+        if err != nil </span><span class="cov0" title="0">{
+                return users, err
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        for rows.Next() </span><span class="cov0" title="0">{
+                err := rows.Scan(&amp;users)
+                if err != nil </span><span class="cov0" title="0">{
+                        return users, err
+                }</span>
+        }
+
+        <span class="cov0" title="0">return users, err</span>
+}
+
+func (d *DB) CreateUser(user model.User) (int, error) <span class="cov0" title="0">{
+        sqCreateUser := sq.Insert("users").
+                Columns("user_name", "first_name", "last_name", "email", "user_status", "department").
+                Values(user.Username, user.Firstname, user.Lastname, user.Email, user.Status, user.Department).
+                Suffix("RETURNING \"id\"")
+
+        query, args, err := sqCreateUser.ToSql()
+        if err != nil </span><span class="cov0" title="0">{
+                return 0, err
+        }</span>
+
+        <span class="cov0" title="0">rows, err := d.db.Query(query, args...)
+        if err != nil </span><span class="cov0" title="0">{
+                return 0, err
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        for rows.Next() </span><span class="cov0" title="0">{
+                err := rows.Scan(
+                        &amp;user.ID,
+                        &amp;user.Username,
+                        &amp;user.Firstname,
+                        &amp;user.Lastname,
+                        &amp;user.Email,
+                        &amp;user.Status,
+                        &amp;user.Department,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return 0, err
+                }</span>
+        }
+
+        <span class="cov0" title="0">return user.ID, err</span>
+}
+
+func (d *DB) UpdateUser(ID int, user model.User) (model.User, error) <span class="cov0" title="0">{
+        sqUpdatedUser := sq.Update("users").
+                Set("user_name", user.Username).
+                Set("first_name", user.Firstname).
+                Set("last_name", user.Lastname).
+                Set("email", user.Email).
+                Set("user_status", user.Status).
+                Set("department", user.Department).
+                Where(sq.Eq{"id": ID}).
+                Suffix("RETURNING \"*\"")
+
+        query, args, err := sqUpdatedUser.ToSql()
+        if err != nil </span><span class="cov0" title="0">{
+                return user, err
+        }</span>
+
+        <span class="cov0" title="0">rows, err := d.db.Query(query, args...)
+        if err != nil </span><span class="cov0" title="0">{
+                return user, err
+        }</span>
+        <span class="cov0" title="0">defer rows.Close()
+
+        for rows.Next() </span><span class="cov0" title="0">{
+                err := rows.Scan(
+                        &amp;user.ID,
+                        &amp;user.Username,
+                        &amp;user.Firstname,
+                        &amp;user.Lastname,
+                        &amp;user.Email,
+                        &amp;user.Status,
+                        &amp;user.Department,
+                )
+                if err != nil </span><span class="cov0" title="0">{
+                        return user, err
+                }</span>
+        }
+
+        <span class="cov0" title="0">return user, err</span>
+}
+
+func (d *DB) DeleteUser(ID int) error <span class="cov0" title="0">{
+        sqDeleteUser := sq.Delete("users").Where(sq.Eq{"id": ID})
+
+        query, args, err := sqDeleteUser.ToSql()
+        if err != nil </span><span class="cov0" title="0">{
+                return err
+        }</span>
+
+        <span class="cov0" title="0">_, err = d.db.Exec(query, args...)
+        return err</span>
+}
+</pre>
+		
+		<pre class="file" id="file8" style="display: none">// Code generated by MockGen. DO NOT EDIT.
+// Source: internal/db/db.go
+
+// Package db is a generated GoMock package.
+package db
+
+import (
+        model "backend/internal/model"
+        reflect "reflect"
+
+        gomock "github.com/golang/mock/gomock"
+)
+
+// MockDBInterface is a mock of DBInterface interface.
+type MockDBInterface struct {
+        ctrl     *gomock.Controller
+        recorder *MockDBInterfaceMockRecorder
+}
+
+// MockDBInterfaceMockRecorder is the mock recorder for MockDBInterface.
+type MockDBInterfaceMockRecorder struct {
+        mock *MockDBInterface
+}
+
+// NewMockDBInterface creates a new mock instance.
+func NewMockDBInterface(ctrl *gomock.Controller) *MockDBInterface <span class="cov0" title="0">{
+        mock := &amp;MockDBInterface{ctrl: ctrl}
+        mock.recorder = &amp;MockDBInterfaceMockRecorder{mock}
+        return mock
+}</span>
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockDBInterface) EXPECT() *MockDBInterfaceMockRecorder <span class="cov0" title="0">{
+        return m.recorder
+}</span>
+
+// CreateUser mocks base method.
+func (m *MockDBInterface) CreateUser(user model.User) (int, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "CreateUser", user)
+        ret0, _ := ret[0].(int)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// CreateUser indicates an expected call of CreateUser.
+func (mr *MockDBInterfaceMockRecorder) CreateUser(user interface{}) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateUser", reflect.TypeOf((*MockDBInterface)(nil).CreateUser), user)
+}</span>
+
+// DeleteUser mocks base method.
+func (m *MockDBInterface) DeleteUser(ID int) error <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "DeleteUser", ID)
+        ret0, _ := ret[0].(error)
+        return ret0
+}</span>
+
+// DeleteUser indicates an expected call of DeleteUser.
+func (mr *MockDBInterfaceMockRecorder) DeleteUser(ID interface{}) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteUser", reflect.TypeOf((*MockDBInterface)(nil).DeleteUser), ID)
+}</span>
+
+// GetUser mocks base method.
+func (m *MockDBInterface) GetUser(ID int) (model.User, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "GetUser", ID)
+        ret0, _ := ret[0].(model.User)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// GetUser indicates an expected call of GetUser.
+func (mr *MockDBInterfaceMockRecorder) GetUser(ID interface{}) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockDBInterface)(nil).GetUser), ID)
+}</span>
+
+// GetUsers mocks base method.
+func (m *MockDBInterface) GetUsers() ([]model.User, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "GetUsers")
+        ret0, _ := ret[0].([]model.User)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// GetUsers indicates an expected call of GetUsers.
+func (mr *MockDBInterfaceMockRecorder) GetUsers() *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUsers", reflect.TypeOf((*MockDBInterface)(nil).GetUsers))
+}</span>
+
+// UpdateUser mocks base method.
+func (m *MockDBInterface) UpdateUser(ID int, user model.User) (model.User, error) <span class="cov0" title="0">{
+        m.ctrl.T.Helper()
+        ret := m.ctrl.Call(m, "UpdateUser", ID, user)
+        ret0, _ := ret[0].(model.User)
+        ret1, _ := ret[1].(error)
+        return ret0, ret1
+}</span>
+
+// UpdateUser indicates an expected call of UpdateUser.
+func (mr *MockDBInterfaceMockRecorder) UpdateUser(ID, user interface{}) *gomock.Call <span class="cov0" title="0">{
+        mr.mock.ctrl.T.Helper()
+        return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateUser", reflect.TypeOf((*MockDBInterface)(nil).UpdateUser), ID, user)
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>
