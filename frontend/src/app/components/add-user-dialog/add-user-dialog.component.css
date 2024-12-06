@@ -1,0 +1,28 @@
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 400px;
+  padding: 16px 0;
+}
+
+mat-form-field {
+  width: 100%;
+}
+
+mat-dialog-actions {
+  padding: 16px 0;
+}
+
+button {
+  margin-left: 8px;
+}
+
+.mat-mdc-form-field-error {
+  font-size: 12px;
+}
+
+/* Add some space between validation messages if there are multiple */
+.mat-mdc-form-field-error + .mat-mdc-form-field-error {
+  margin-top: 4px;
+} 

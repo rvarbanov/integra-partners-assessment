@@ -1,0 +1,70 @@
+.container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+h1 {
+  color: #2c3e50;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+table {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.mat-mdc-row:hover {
+  background-color: #f5f5f5;
+}
+
+.mat-mdc-header-cell {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+.mat-column-actions {
+  width: 120px;
+  text-align: center;
+}
+
+button {
+  margin: 0 4px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h1 {
+  margin: 0;
+}
+
+.header button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  height: 36px;
+}
+
+.table-container {
+  position: relative;
+  min-height: 200px;
+}
+
+.loading-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+}
+
+.loading {
+  opacity: 0.5;
+}

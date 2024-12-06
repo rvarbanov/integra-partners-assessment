@@ -24,14 +24,14 @@ func (api *API) Start(cfg config.API) {
 	e := echo.New()
 	e.Use(middleware.Logger())
 
-	e.GET("/status", api.getStatus)
+	e.GET("/api/status", api.getStatus)
 
-	e.POST("/user", api.createUser)
-	e.GET("/user/:id", api.getUser)
-	e.PUT("/user/:id", api.updateUser, validateUserBody)
-	e.DELETE("/user/:id", api.deleteUser)
+	e.POST("/api/user", api.createUser)
+	e.GET("/api/user/:id", api.getUser)
+	e.PUT("/api/user/:id", api.updateUser, validateUserBody)
+	e.DELETE("/api/user/:id", api.deleteUser)
 
-	e.GET("/users", api.getUsers)
+	e.GET("/api/users", api.getUsers)
 
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%s", cfg.Port)))
 }

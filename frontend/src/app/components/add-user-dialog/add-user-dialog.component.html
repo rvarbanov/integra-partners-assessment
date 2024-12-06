@@ -1,0 +1,66 @@
+<h2 mat-dialog-title>{{ isEditMode ? 'Edit User' : 'Add New User' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="userForm" class="form-container">
+    <mat-form-field appearance="outline">
+      <mat-label>Username</mat-label>
+      <input matInput formControlName="user_name" required>
+      <mat-error *ngIf="userForm.get('user_name')?.invalid && userForm.get('user_name')?.touched">
+        {{ getErrorMessage('user_name') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>First Name</mat-label>
+      <input matInput formControlName="first_name" required>
+      <mat-error *ngIf="userForm.get('first_name')?.invalid && userForm.get('first_name')?.touched">
+        {{ getErrorMessage('first_name') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Last Name</mat-label>
+      <input matInput formControlName="last_name" required>
+      <mat-error *ngIf="userForm.get('last_name')?.invalid && userForm.get('last_name')?.touched">
+        {{ getErrorMessage('last_name') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email" required>
+      <mat-error *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched">
+        {{ getErrorMessage('email') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Status</mat-label>
+      <mat-select formControlName="user_status" required>
+        <mat-option value="active">Active</mat-option>
+        <mat-option value="inactive">Inactive</mat-option>
+        <mat-option value="terminated">Terminated</mat-option>
+      </mat-select>
+      <mat-error *ngIf="userForm.get('user_status')?.invalid && userForm.get('user_status')?.touched">
+        {{ getErrorMessage('user_status') }}
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Department</mat-label>
+      <mat-select formControlName="department" required>
+        <mat-option value="IT">IT</mat-option>
+        <mat-option value="HR">HR</mat-option>
+        <mat-option value="Sales">Sales</mat-option>
+        <mat-option value="Marketing">Marketing</mat-option>
+        <mat-option value="Finance">Finance</mat-option>
+      </mat-select>
+      <mat-error *ngIf="userForm.get('department')?.invalid && userForm.get('department')?.touched">
+        {{ getErrorMessage('department') }}
+      </mat-error>
+    </mat-form-field>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="userForm.invalid">Save</button>
+</mat-dialog-actions> 
