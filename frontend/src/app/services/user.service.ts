@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 export interface User {
   id: number;
@@ -17,72 +17,53 @@ export interface User {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = 'http://localhost:8080/api';
-  
-  private mockUsers: User[] = [
-    {
-      id: 1,
-      user_name: 'johndoe',
-      first_name: 'John',
-      last_name: 'Doe',
-      email: 'john.doe@example.com',
-      user_status: 'active',
-      department: 'IT'
-    },
-    {
-      id: 2,
-      user_name: 'janesmith',
-      first_name: 'Jane',
-      last_name: 'Smith',
-      email: 'jane.smith@example.com',
-      user_status: 'active',
-      department: 'HR'
-    },
-    {
-      id: 3,
-      user_name: 'bobjohnson',
-      first_name: 'Bob',
-      last_name: 'Johnson',
-      email: 'bob.johnson@example.com',
-      user_status: 'inactive',
-      department: 'Sales'
-    },
-    {
-      id: 4,
-      user_name: 'alicebrown',
-      first_name: 'Alice',
-      last_name: 'Brown',
-      email: 'alice.brown@example.com',
-      user_status: 'active',
-      department: 'Marketing'
-    },
-    {
-      id: 5,
-      user_name: 'charliewilson',
-      first_name: 'Charlie',
-      last_name: 'Wilson',
-      email: 'charlie.wilson@example.com',
-      user_status: 'terminated',
-      department: 'Finance'
-    }
-  ];
+  private apiUrl = 'http://localhost:8080/api/users';
 
   constructor(private http: HttpClient) {}
 
   getUsers(): Observable<User[]> {
-    // Simulate API call with delay
-    return of(this.mockUsers).pipe(delay(500));
+    return this.http.get<User[]>(this.apiUrl)
+      .pipe(catchError(this.handleError));
+  }
+
+  getUser(id: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/${id}`)
+      .pipe(catchError(this.handleError));
   }
 
   addUser(user: User): Observable<User> {
-    return of({ ...user, id: this.mockUsers.length + 1 }).pipe(delay(500));
+    return this.http.post<User>(this.apiUrl, user)
+      .pipe(catchError(this.handleError));
   }
 
   updateUser(user: User): Observable<User> {
-    return of(user).pipe(delay(500));
+    return this.http.put<User>(`${this.apiUrl}/${user.id}`, user)
+      .pipe(catchError(this.handleError));
   }
 
   deleteUser(id: number): Observable<void> {
-    return of(void 0).pipe(delay(500));
+    return this.http.delete<void>(`${this.apiUrl}/${id}`)
+      .pipe(catchError(this.handleError));
+  }
+
+  private handleError(error: HttpErrorResponse) {
+    let errorMessage = 'An error occurred';
+    
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      errorMessage = error.error.message;
+    } else {
+      // Server-side error
+      if (error.status === 409) {
+        errorMessage = 'Username already exists';
+      } else if (error.error?.message) {
+        errorMessage = error.error.message;
+      } else {
+        errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+      }
+    }
+    
+    console.error('Error:', errorMessage);
+    return throwError(() => new Error(errorMessage));
   }
 } 

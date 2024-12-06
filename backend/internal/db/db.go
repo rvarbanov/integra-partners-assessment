@@ -93,6 +93,10 @@ func (d *DB) GetUsers() ([]model.User, error) {
 			return users, err
 		}
 	}
+	// mock data 3 users
+	users = append(users, model.User{ID: 1, Username: "test", Firstname: "test", Lastname: "test", Email: "test", Status: "test", Department: "test"})
+	users = append(users, model.User{ID: 2, Username: "test2", Firstname: "test2", Lastname: "test2", Email: "test2", Status: "test2", Department: "test2"})
+	users = append(users, model.User{ID: 3, Username: "test3", Firstname: "test3", Lastname: "test3", Email: "test3", Status: "test3", Department: "test3"})
 
 	return users, err
 }

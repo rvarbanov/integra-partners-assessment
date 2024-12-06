@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { UserService, User } from '../services/user.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AddUserDialogComponent } from '../components/add-user-dialog/add-user-dialog.component';
 import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dialog.component';
 
@@ -17,7 +18,8 @@ import { ConfirmDialogComponent } from '../components/confirm-dialog/confirm-dia
     MatButtonModule, 
     MatIconModule, 
     CommonModule,
-    MatProgressSpinnerModule
+    MatProgressSpinnerModule,
+    MatSnackBarModule
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
@@ -38,7 +40,8 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private snackBar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -53,9 +56,19 @@ export class HomeComponent implements OnInit {
         this.isLoading = false;
       },
       error: (error) => {
-        console.error('Error loading users:', error);
         this.isLoading = false;
+        this.showError('Failed to load users. The API server might be down or unreachable.');
+        this.users = []; // Clear the users array when there's an error
       }
+    });
+  }
+
+  private showError(message: string) {
+    this.snackBar.open(message, 'Close', {
+      duration: 5000,  // Show for 5 seconds
+      horizontalPosition: 'center',
+      verticalPosition: 'bottom',
+      panelClass: ['error-snackbar']
     });
   }
 
