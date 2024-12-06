@@ -1,15 +1,19 @@
 package model
 
+import "time"
+
 // TODO: normalize data - department
 // create department table and map department name to id
 type User struct {
-	ID         int    `db:"id" json:"id"`
-	Username   string `db:"user_name" json:"user_name"`
-	Firstname  string `db:"first_name" json:"first_name"`
-	Lastname   string `db:"last_name" json:"last_name"`
-	Email      string `db:"email" json:"email"`
-	Status     string `db:"user_status" json:"user_status"`
-	Department string `db:"department" json:"department"`
+	ID         int       `db:"user_id" json:"user_id"`
+	Username   string    `db:"user_name" json:"user_name"`
+	Firstname  string    `db:"first_name" json:"first_name"`
+	Lastname   string    `db:"last_name" json:"last_name"`
+	Email      string    `db:"email" json:"email"`
+	Status     string    `db:"user_status" json:"user_status"`
+	Department string    `db:"department" json:"department"`
+	CreatedAt  time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt  time.Time `db:"updated_at" json:"updated_at"`
 }
 
 type Response struct {

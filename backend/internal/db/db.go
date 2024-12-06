@@ -47,7 +47,8 @@ func (d *DB) GetUser(ID int) (model.User, error) {
 
 	sqGetUser := sq.Select("*").
 		From("users").
-		Where(sq.Eq{"id": ID})
+		Where(sq.Eq{"user_id": ID}).
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := sqGetUser.ToSql()
 	if err != nil {
@@ -63,7 +64,12 @@ func (d *DB) GetUser(ID int) (model.User, error) {
 		&user.Email,
 		&user.Status,
 		&user.Department,
+		&user.CreatedAt,
+		&user.UpdatedAt,
 	)
+	if err == sql.ErrNoRows {
+		return user, fmt.Errorf("user with ID %d not found", ID)
+	}
 	if err != nil {
 		return user, err
 	}
@@ -88,37 +94,7 @@ func (d *DB) GetUsers() ([]model.User, error) {
 	defer rows.Close()
 
 	for rows.Next() {
-		err := rows.Scan(&users)
-		if err != nil {
-			return users, err
-		}
-	}
-	// mock data 3 users
-	users = append(users, model.User{ID: 1, Username: "test", Firstname: "test", Lastname: "test", Email: "test", Status: "test", Department: "test"})
-	users = append(users, model.User{ID: 2, Username: "test2", Firstname: "test2", Lastname: "test2", Email: "test2", Status: "test2", Department: "test2"})
-	users = append(users, model.User{ID: 3, Username: "test3", Firstname: "test3", Lastname: "test3", Email: "test3", Status: "test3", Department: "test3"})
-
-	return users, err
-}
-
-func (d *DB) CreateUser(user model.User) (int, error) {
-	sqCreateUser := sq.Insert("users").
-		Columns("user_name", "first_name", "last_name", "email", "user_status", "department").
-		Values(user.Username, user.Firstname, user.Lastname, user.Email, user.Status, user.Department).
-		Suffix("RETURNING \"id\"")
-
-	query, args, err := sqCreateUser.ToSql()
-	if err != nil {
-		return 0, err
-	}
-
-	rows, err := d.db.Query(query, args...)
-	if err != nil {
-		return 0, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
+		var user model.User
 		err := rows.Scan(
 			&user.ID,
 			&user.Username,
@@ -127,13 +103,52 @@ func (d *DB) CreateUser(user model.User) (int, error) {
 			&user.Email,
 			&user.Status,
 			&user.Department,
+			&user.CreatedAt,
+			&user.UpdatedAt,
 		)
 		if err != nil {
-			return 0, err
+			return users, err
 		}
+		users = append(users, user)
 	}
 
-	return user.ID, err
+	return users, err
+}
+
+func (d *DB) CreateUser(user model.User) (int, error) {
+	var id int
+
+	sqCreateUser := sq.Insert("users").
+		Columns(
+			"user_name",
+			"first_name",
+			"last_name",
+			"email",
+			"user_status",
+			"department",
+		).
+		Values(
+			user.Username,
+			user.Firstname,
+			user.Lastname,
+			user.Email,
+			user.Status,
+			user.Department,
+		).
+		Suffix("RETURNING id").
+		PlaceholderFormat(sq.Dollar)
+
+	query, args, err := sqCreateUser.ToSql()
+	if err != nil {
+		return 0, err
+	}
+
+	err = d.db.QueryRow(query, args...).Scan(&id)
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
 func (d *DB) UpdateUser(ID int, user model.User) (model.User, error) {
@@ -177,14 +192,29 @@ func (d *DB) UpdateUser(ID int, user model.User) (model.User, error) {
 }
 
 func (d *DB) DeleteUser(ID int) error {
-	sqDeleteUser := sq.Delete("users").Where(sq.Eq{"id": ID})
+	sqDeleteUser := sq.Delete("users").
+		Where(sq.Eq{"user_id": ID}).
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := sqDeleteUser.ToSql()
 	if err != nil {
 		return err
 	}
 
-	_, err = d.db.Exec(query, args...)
+	result, err := d.db.Exec(query, args...)
+	if err != nil {
+		return err
+	}
+
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return fmt.Errorf("user with ID %d not found", ID)
+	}
+
 	return err
 }
 
@@ -193,7 +223,8 @@ func (d *DB) GetUserByUsername(username string) (model.User, error) {
 
 	sqGetUser := sq.Select("*").
 		From("users").
-		Where(sq.Eq{"user_name": username})
+		Where(sq.Eq{"user_name": username}).
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := sqGetUser.ToSql()
 	if err != nil {
@@ -209,6 +240,8 @@ func (d *DB) GetUserByUsername(username string) (model.User, error) {
 		&user.Email,
 		&user.Status,
 		&user.Department,
+		&user.CreatedAt,
+		&user.UpdatedAt,
 	)
 	if err != nil {
 		return user, err

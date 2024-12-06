@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -75,6 +76,11 @@ func (api *API) getUser(c echo.Context) error {
 
 	user, err := api.ctrl.GetUser(ID)
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return c.JSON(http.StatusNotFound, model.Response{
+				Error: err.Error(),
+			})
+		}
 		return c.JSON(http.StatusInternalServerError, model.Response{
 			Error: err.Error(),
 		})
@@ -119,6 +125,12 @@ func (api *API) deleteUser(c echo.Context) error {
 
 	err = api.ctrl.DeleteUser(ID)
 	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return c.JSON(http.StatusNotFound, model.Response{
+				Error: err.Error(),
+			})
+		}
+
 		return c.JSON(http.StatusInternalServerError, model.Response{
 			Error: err.Error(),
 		})

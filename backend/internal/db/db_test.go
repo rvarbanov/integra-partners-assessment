@@ -55,13 +55,15 @@ var _ = Describe("DB", func() {
 		It("should retrieve a user by ID", func() {
 			// Define expected rows
 			rows := sqlmock.NewRows([]string{
-				"id",
+				"user_id",
 				"user_name",
 				"first_name",
 				"last_name",
 				"email",
 				"user_status",
 				"department",
+				"created_at",
+				"updated_at",
 			}).
 				AddRow(
 					mockUser.ID,
@@ -71,10 +73,12 @@ var _ = Describe("DB", func() {
 					mockUser.Email,
 					mockUser.Status,
 					mockUser.Department,
+					mockUser.CreatedAt,
+					mockUser.UpdatedAt,
 				)
 
 			// Expect the query and return mocked rows
-			mock.ExpectQuery("SELECT (.+) FROM users WHERE id = ?").
+			mock.ExpectQuery(`SELECT (.+) FROM users WHERE user_id = \$1`).
 				WithArgs(1).
 				WillReturnRows(rows)
 
@@ -85,7 +89,7 @@ var _ = Describe("DB", func() {
 		})
 
 		It("should return error when user not found", func() {
-			mock.ExpectQuery("SELECT (.+) FROM users WHERE id = ?").
+			mock.ExpectQuery(`SELECT (.+) FROM users WHERE user_id = \$1`).
 				WithArgs(1).
 				WillReturnError(sql.ErrNoRows)
 
