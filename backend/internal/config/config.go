@@ -20,8 +20,6 @@ type API struct {
 }
 
 func Load() *Config {
-	// todo: load config from .env
-
 	return &Config{
 		Database: GetDBConfig(),
 		API: API{

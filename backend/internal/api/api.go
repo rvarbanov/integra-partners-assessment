@@ -248,23 +248,3 @@ func getParamID(c echo.Context) (int, error) {
 
 	return ID, err
 }
-
-// TODO: add a more robust validation for the user body
-/*
-func validateUserBody(next echo.HandlerFunc) echo.HandlerFunc {
-	return func(c echo.Context) error {
-		user := model.User{}
-		err := c.Bind(&user)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, model.Response{Error: fmt.Errorf("invalid user data: %w", err.Error())})
-		}
-
-		if !user.IsValid() {
-			return c.JSON(http.StatusBadRequest, model.Response{Error: fmt.Errorf("invalid user data: %w", err.Error())})
-		}
-
-		return next(c)
-	}
-
-}
-*/

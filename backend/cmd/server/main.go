@@ -9,10 +9,8 @@ import (
 )
 
 func main() {
-	// todo: load config
 	cfg := config.Load()
 
-	// todo: get db connection
 	db := db.NewDB(cfg.Database)
 
 	dao := dao.NewDao(db)

@@ -43,7 +43,7 @@ var _ = Describe("API", func() {
 
 	Describe("GetStatus", func() {
 		It("should return a status", func() {
-			req, _ := http.NewRequest("GET", "/status", nil)
+			req, _ := http.NewRequest("GET", "/api/v1/status", nil)
 			res := httptest.NewRecorder()
 			c := echo.New().NewContext(req, res)
 
@@ -60,7 +60,7 @@ var _ = Describe("API", func() {
 				"email": "testuser@example.com"
 			}`)
 
-			req, _ := http.NewRequest("POST", "/user", reqBody)
+			req, _ := http.NewRequest("POST", "/api/v1/user", reqBody)
 			req.Header.Set("Content-Type", "application/json")
 			res := httptest.NewRecorder()
 			c := echo.New().NewContext(req, res)
@@ -80,7 +80,7 @@ var _ = Describe("API", func() {
 				"email": "testuser@example.com"
 			}`)
 
-			req, _ := http.NewRequest("POST", "/user", reqBody)
+			req, _ := http.NewRequest("POST", "/api/v1/user", reqBody)
 			req.Header.Set("Content-Type", "application/json")
 			res := httptest.NewRecorder()
 			c := echo.New().NewContext(req, res)
@@ -93,6 +93,59 @@ var _ = Describe("API", func() {
 		})
 	})
 
+	Describe("getUser", func() {
+		It("should get a user", func() {
+			req, _ := http.NewRequest("GET", "/api/v1/user/1", nil)
+			res := httptest.NewRecorder()
+			c := echo.New().NewContext(req, res)
+			c.SetParamNames("id")
+			c.SetParamValues("1")
+
+			mockCtrl.EXPECT().GetUser(1).Return(model.User{ID: 1, Email: "testuser@example.com"}, nil)
+
+			err := api.getUser(c)
+			Expect(err).To(BeNil())
+			Expect(res.Code).To(Equal(http.StatusOK))
+		})
+	})
+
+	Describe("updateUser", func() {
+		It("should update a user", func() {
+			reqBody := strings.NewReader(`{
+				"email": "testuser@example.com"
+			}`)
+
+			req, _ := http.NewRequest("PUT", "/api/v1/user/1", reqBody)
+			req.Header.Set("Content-Type", "application/json")
+			res := httptest.NewRecorder()
+			c := echo.New().NewContext(req, res)
+			c.SetParamNames("id")
+			c.SetParamValues("1")
+
+			mockCtrl.EXPECT().UpdateUser(1, gomock.Any()).Return(model.User{ID: 1, Email: "testuser@example.com"}, nil)
+
+			err := api.updateUser(c)
+			Expect(err).To(BeNil())
+			Expect(res.Code).To(Equal(http.StatusOK))
+		})
+	})
+
+	Describe("deleteUser", func() {
+		It("should delete a user", func() {
+			req, _ := http.NewRequest("DELETE", "/api/v1/user/1", nil)
+			res := httptest.NewRecorder()
+			c := echo.New().NewContext(req, res)
+			c.SetParamNames("id")
+			c.SetParamValues("1")
+
+			mockCtrl.EXPECT().DeleteUser(1).Return(nil)
+
+			err := api.deleteUser(c)
+			Expect(err).To(BeNil())
+			Expect(res.Code).To(Equal(http.StatusNoContent))
+		})
+	})
+
 	Describe("getUsers", func() {
 		It("should get users", func() {
 			users := []model.User{
@@ -100,7 +153,7 @@ var _ = Describe("API", func() {
 				{ID: 2, Email: "testuser2@example.com"},
 			}
 
-			req, _ := http.NewRequest("GET", "/users", nil)
+			req, _ := http.NewRequest("GET", "/api/v1/users", nil)
 			res := httptest.NewRecorder()
 			c := echo.New().NewContext(req, res)
 
@@ -125,7 +178,7 @@ var _ = Describe("API", func() {
 		})
 
 		It("should return an internal server error if the db returns an error", func() {
-			req, _ := http.NewRequest("GET", "/users", nil)
+			req, _ := http.NewRequest("GET", "/api/v1/users", nil)
 			res := httptest.NewRecorder()
 			c := echo.New().NewContext(req, res)
 
@@ -136,6 +189,4 @@ var _ = Describe("API", func() {
 			Expect(res.Code).To(Equal(http.StatusInternalServerError))
 		})
 	})
-
-	// TODO: add tests for other endpoints
 })
