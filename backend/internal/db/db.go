@@ -67,9 +67,6 @@ func (d *DB) GetUser(ID int) (model.User, error) {
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
-	if err == sql.ErrNoRows {
-		return user, fmt.Errorf("user with ID %d not found", ID)
-	}
 	if err != nil {
 		return user, err
 	}
@@ -116,8 +113,6 @@ func (d *DB) GetUsers() ([]model.User, error) {
 }
 
 func (d *DB) CreateUser(user model.User) (int, error) {
-	var id int
-
 	sqCreateUser := sq.Insert("users").
 		Columns(
 			"user_name",
@@ -135,20 +130,24 @@ func (d *DB) CreateUser(user model.User) (int, error) {
 			user.Status,
 			user.Department,
 		).
-		Suffix("RETURNING id").
+		Suffix("RETURNING user_id").
 		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := sqCreateUser.ToSql()
 	if err != nil {
-		return 0, err
+		return 0, fmt.Errorf("failed to build query: %w", err)
 	}
 
-	err = d.db.QueryRow(query, args...).Scan(&id)
+	var userID int
+	err = d.db.QueryRow(query, args...).Scan(&userID)
 	if err != nil {
-		return 0, err
+		if err == sql.ErrNoRows {
+			return 0, fmt.Errorf("user creation failed: no ID returned")
+		}
+		return 0, fmt.Errorf("failed to create user: %w", err)
 	}
 
-	return id, nil
+	return userID, err
 }
 
 func (d *DB) UpdateUser(ID int, user model.User) (model.User, error) {
@@ -159,33 +158,29 @@ func (d *DB) UpdateUser(ID int, user model.User) (model.User, error) {
 		Set("email", user.Email).
 		Set("user_status", user.Status).
 		Set("department", user.Department).
-		Where(sq.Eq{"id": ID}).
-		Suffix("RETURNING \"*\"")
+		Where(sq.Eq{"user_id": ID}).
+		Suffix("RETURNING user_id, user_name, first_name, last_name, email, user_status, department, created_at, updated_at").
+		PlaceholderFormat(sq.Dollar)
 
 	query, args, err := sqUpdatedUser.ToSql()
 	if err != nil {
 		return user, err
 	}
 
-	rows, err := d.db.Query(query, args...)
+	row := d.db.QueryRow(query, args...)
+	err = row.Scan(
+		&user.ID,
+		&user.Username,
+		&user.Firstname,
+		&user.Lastname,
+		&user.Email,
+		&user.Status,
+		&user.Department,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
 	if err != nil {
 		return user, err
-	}
-	defer rows.Close()
-
-	for rows.Next() {
-		err := rows.Scan(
-			&user.ID,
-			&user.Username,
-			&user.Firstname,
-			&user.Lastname,
-			&user.Email,
-			&user.Status,
-			&user.Department,
-		)
-		if err != nil {
-			return user, err
-		}
 	}
 
 	return user, err
@@ -228,7 +223,7 @@ func (d *DB) GetUserByUsername(username string) (model.User, error) {
 
 	query, args, err := sqGetUser.ToSql()
 	if err != nil {
-		return user, err
+		return user, fmt.Errorf("failed to build query: %w", err)
 	}
 
 	row := d.db.QueryRow(query, args...)
@@ -243,8 +238,12 @@ func (d *DB) GetUserByUsername(username string) (model.User, error) {
 		&user.CreatedAt,
 		&user.UpdatedAt,
 	)
+	if err == sql.ErrNoRows {
+		return user, nil
+	}
+
 	if err != nil {
-		return user, err
+		return user, fmt.Errorf("failed to scan user: %w", err)
 	}
 
 	return user, err

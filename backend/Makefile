@@ -22,6 +22,9 @@ docker-clean:
 	docker rmi $(docker images -a -q)
 	docker rm $(docker ps -a -f status=exited -q)
 
+doc:
+	swag init -g internal/api/api.go
+
 mock:
 	mockgen -source=internal/db/db.go -destination=internal/db/mock/mock_db.go -package=mock_db
 	mockgen -source=internal/dao/dao.go -destination=internal/dao/mock/mock_dao.go -package=mock_dao

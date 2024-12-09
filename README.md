@@ -37,3 +37,9 @@ Summary:
       * You can create 2 repositories for Go and Angular code or 1 mono-repo (whichever you prefer)
 
 ![Screenshot](./image.png)
+
+
+## [Backend README.md](./backend/README.md)
+
+
+## [Frontend README.md](./frontend/README.md)

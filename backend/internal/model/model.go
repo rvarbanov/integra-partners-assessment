@@ -6,14 +6,14 @@ import "time"
 // create department table and map department name to id
 type User struct {
 	ID         int       `db:"user_id" json:"user_id"`
-	Username   string    `db:"user_name" json:"user_name"`
-	Firstname  string    `db:"first_name" json:"first_name"`
-	Lastname   string    `db:"last_name" json:"last_name"`
-	Email      string    `db:"email" json:"email"`
-	Status     string    `db:"user_status" json:"user_status"`
-	Department string    `db:"department" json:"department"`
-	CreatedAt  time.Time `db:"created_at" json:"created_at"`
-	UpdatedAt  time.Time `db:"updated_at" json:"updated_at"`
+	Username   string    `db:"user_name" json:"user_name,omitempty"`
+	Firstname  string    `db:"first_name" json:"first_name,omitempty"`
+	Lastname   string    `db:"last_name" json:"last_name,omitempty"`
+	Email      string    `db:"email" json:"email,omitempty"`
+	Status     string    `db:"user_status" json:"user_status,omitempty"`
+	Department string    `db:"department" json:"department,omitempty"`
+	CreatedAt  time.Time `db:"created_at" json:"created_at,omitempty"`
+	UpdatedAt  time.Time `db:"updated_at" json:"updated_at,omitempty"`
 }
 
 type Response struct {
