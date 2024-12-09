@@ -25,8 +25,9 @@ Detailed API documentation is available at `/swagger/index.html` when the server
 #### Get Status
 Request:
 ```bash
-curl -X GET http://localhost:8080/status
+curl -X GET http://localhost:8080/api/v1/status
 ```
+
 Response:
 ```json
 {
@@ -37,7 +38,7 @@ Response:
 #### Create User
 Request:
 ```bash
-curl -X POST http://localhost:8080/user \
+curl -X POST http://localhost:8080/api/v1/user \
 -H "Content-Type: application/json" \
 -d '{
   "user_name": "testuser",
@@ -48,11 +49,12 @@ curl -X POST http://localhost:8080/user \
   "department": "Engineering"
 }'
 ```
+
 Response:
 ```json
 {
   "data": {
-    "id": 1, 
+    "user_ id": 1, 
     "user_name": "testuser",
     "first_name": "John",
     "last_name": "Doe",
@@ -66,7 +68,7 @@ Response:
 #### Update User
 Request:
 ```bash
-curl -X PUT http://localhost:8080/user/:id \
+curl -X PUT http://localhost:8080/api/v1/user/:id \
 -H "Content-Type: application/json" \
 -d '{
   "user_name": "testuser",
@@ -74,14 +76,15 @@ curl -X PUT http://localhost:8080/user/:id \
   "last_name": "Doe",
   "email": "testuser@example.com",
   "user_status": "A",
-  "department": "Engineering",
+  "department": "Engineering"
 }'
 ```
+
 Response:
 ```json
 {
   "data": {
-    "id": 1, 
+    "user_id": 1, 
     "user_name": "testuser",
     "first_name": "John",
     "last_name": "Doe",
@@ -95,19 +98,20 @@ Response:
 #### Delete User
 Request:
 ```bash
-curl -X DELETE http://localhost:8080/user/:id
+curl -X DELETE http://localhost:8080/api/v1/user/:id
 ```
 
 #### Get User
 Request:
 ```bash
-curl -X GET http://localhost:8080/user/:id
+curl -X GET http://localhost:8080/api/v1/user/:id
 ```
+
 Response:
 ```json
 {
   "data": {
-    "id": 1, 
+    "user_id": 1, 
     "user_name": "testuser",
     "first_name": "John",
     "last_name": "Doe",
@@ -121,14 +125,14 @@ Response:
 #### List Users
 Request:
 ```bash
-curl -X GET http://localhost:8080/users
+curl -X GET http://localhost:8080/api/v1/users
 ```
 Response:
 ```json
 {
   "data": [
     {
-      "id": 1, 
+      "user_id": 1, 
       "user_name": "testuser",
       "first_name": "John",
       "last_name": "Doe",
@@ -187,9 +191,12 @@ make mock
 make test
 ```
 
-## Improvement opportunities:
+## Improvement Opportunities
+
 - Add logging
-  - log errors, warnings, info, debug
+  - Log errors, warnings, info, debug
 - Add metrics
-  - datadog
+  - Integrate with Datadog
 - Add authentication
+  - Implement JWT-based authentication
+  - Update API endpoints to require authentication
