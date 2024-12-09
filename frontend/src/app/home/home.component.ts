@@ -52,21 +52,19 @@ export class HomeComponent implements OnInit {
     this.isLoading = true;
     this.userService.getUsers().subscribe({
       next: (data) => {
-        console.log('loaded data:', data);
-        this.users = data;
+        this.users = data.sort((a, b) => a.user_id - b.user_id);
         this.isLoading = false;
       },
       error: (error) => {
         this.showError('Failed to load users. The API server might be down or unreachable.');
-        console.error('HERE 2!! error load users:', error);
+        console.error('error loading users:', error);
         this.isLoading = false;
-        this.users = []; // Clear the users array when there's an error
+        this.users = [];
       }
     });
   }
 
   private showError(message: string) {
-    console.error('HERE 1! showError:', message);
     this.snackBar.open(message, 'Close', {
       duration: 5000,
       horizontalPosition: 'center',
@@ -83,12 +81,17 @@ export class HomeComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.userService.addUser(result).subscribe({
-          next: (newUser) => {
-            this.users = [...this.users, newUser];
-            console.log('User added successfully:', newUser);
+          next: (response) => {
+            this.snackBar.open('User added successfully', 'Close', {
+              duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom'
+            });
+            this.loadUsers();
           },
           error: (error) => {
             console.error('Error adding user:', error);
+            this.showError('Failed to add user. Please try again.');
           }
         });
       }
@@ -111,6 +114,7 @@ export class HomeComponent implements OnInit {
               this.users = [...this.users];
             }
             console.log('User updated successfully');
+            this.loadUsers();
           },
           error: (error) => {
             console.error('Error updating user:', error);
@@ -134,6 +138,7 @@ export class HomeComponent implements OnInit {
           next: () => {
             this.users = this.users.filter(u => u.user_id !== user.user_id);
             console.log('User deleted successfully');
+            this.loadUsers();
           },
           error: (error) => {
             console.error('Error deleting user:', error);

@@ -12,13 +12,14 @@ Backend service for user management system built with Go 1.22 and Echo framework
 
 ### Endpoints
 
-- `GET /status` - Get server status
-- `GET /users` - List all users
-- `POST /user` - Create a new user
-- `PUT /user/:id` - Update an existing user
-- `DELETE /user/:id` - Delete a user
+- `GET /api/v1/status` - Get server status
+- `GET /api/v1/users` - List all users
+- `POST /api/v1/user` - Create a new user
+- `GET /api/v1/user/:id` - Get a user by id
+- `PUT /api/v1/user/:id` - Update an existing user
+- `DELETE /api/v1/user/:id` - Delete a user
 
-Detailed API documentation is available at `/swagger/index.html` when the server is running.
+Detailed API documentation is available at `/api/v1/docs/index.html` when the server is running.
 
 ### Example Requests
 
