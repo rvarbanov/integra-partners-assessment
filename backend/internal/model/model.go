@@ -33,11 +33,11 @@ func (u *User) ValidateUsername() bool {
 }
 
 func (u *User) ValidateFirstname() bool {
-	return len(u.Firstname) >= 1 && len(u.Firstname) <= 20 && regexp.MustCompile(`^[a-zA-Z]+$`).MatchString(u.Firstname)
+	return len(u.Firstname) >= 3 && len(u.Firstname) <= 20 && regexp.MustCompile(`^[a-zA-Z0-9]+$`).MatchString(u.Firstname)
 }
 
 func (u *User) ValidateLastname() bool {
-	return len(u.Lastname) >= 1 && len(u.Lastname) <= 20 && regexp.MustCompile(`^[a-zA-Z]+$`).MatchString(u.Lastname)
+	return len(u.Lastname) >= 3 && len(u.Lastname) <= 20 && regexp.MustCompile(`^[a-zA-Z0-9]+$`).MatchString(u.Lastname)
 }
 
 func (u *User) ValidateEmail() bool {

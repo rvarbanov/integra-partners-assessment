@@ -23,7 +23,6 @@ func NewController(dao dao.DaoInterface) *Controller {
 }
 
 func (ctrl *Controller) CreateUser(user model.User) (int, error) {
-	// validate the user
 	if !user.IsValid() {
 		return 0, fmt.Errorf("invalid user data")
 	}
@@ -46,7 +45,6 @@ func (ctrl *Controller) GetUser(ID int) (model.User, error) {
 }
 
 func (ctrl *Controller) UpdateUser(ID int, user model.User) (model.User, error) {
-	// validate the user
 	if !user.IsValid() {
 		return model.User{}, fmt.Errorf("invalid user data")
 	}
