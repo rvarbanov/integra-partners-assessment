@@ -93,7 +93,7 @@ export class HomeComponent implements OnInit {
           },
           error: (error) => {
             console.error('Error adding user:', error);
-            this.showError('Failed to add user. Please try again.');
+            this.showError('Failed to add user: ' + (error.error?.error || 'Unknown error occurred'));
           }
         });
       }
@@ -110,16 +110,16 @@ export class HomeComponent implements OnInit {
         const updatedUser = { ...result, user_id: user.user_id };
         this.userService.updateUser(updatedUser).subscribe({
           next: (response) => {
-            const index = this.users.findIndex(u => u.user_id === user.user_id);
-            if (index !== -1) {
-              this.users[index] = response;
-              this.users = [...this.users];
-            }
-            console.log('User updated successfully');
+            this.snackBar.open('User updated successfully', 'Close', {
+              duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom'
+            });
             this.loadUsers();
           },
           error: (error) => {
             console.error('Error updating user:', error);
+            this.showError('Failed to update user: ' + (error.error?.error || 'Unknown error occurred'));
           }
         });
       }
@@ -138,12 +138,16 @@ export class HomeComponent implements OnInit {
       if (result) {
         this.userService.deleteUser(user.user_id).subscribe({
           next: () => {
-            this.users = this.users.filter(u => u.user_id !== user.user_id);
-            console.log('User deleted successfully');
+            this.snackBar.open('User deleted successfully', 'Close', {
+              duration: 3000,
+              horizontalPosition: 'center',
+              verticalPosition: 'bottom'
+            });
             this.loadUsers();
           },
           error: (error) => {
             console.error('Error deleting user:', error);
+            this.showError('Failed to delete user: ' + (error.error?.error || 'Unknown error occurred'));
           }
         });
       }

@@ -99,3 +99,8 @@ button {
   align-items: center;
   gap: 8px;
 }
+
+.error-snackbar {
+  background: #f44336;
+  color: white;
+}
