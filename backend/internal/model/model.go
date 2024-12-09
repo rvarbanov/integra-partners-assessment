@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"regexp"
+	"time"
+)
 
 // TODO: normalize data - department
 // create department table and map department name to id
@@ -22,13 +25,29 @@ type Response struct {
 }
 
 func (u *User) IsValid() bool {
-	// TODO: validation for the data
-	// - username - must be between 3 and 20 characters, alphanumeric
-	// - firstname - must be between 1 and 20 characters, alphabetic
-	// - lastname - must be between 1 and 20 characters, alphabetic
-	// - email - must be a valid email address
-	// - status - must be "A", "I", or "T"
-	// - department - must be one from a list
+	return u.ValidateUsername() && u.ValidateFirstname() && u.ValidateLastname() && u.ValidateEmail() && u.ValidateStatus() && u.ValidateDepartment()
+}
 
-	return true
+func (u *User) ValidateUsername() bool {
+	return len(u.Username) >= 3 && len(u.Username) <= 20 && regexp.MustCompile(`^[a-zA-Z0-9]+$`).MatchString(u.Username)
+}
+
+func (u *User) ValidateFirstname() bool {
+	return len(u.Firstname) >= 1 && len(u.Firstname) <= 20 && regexp.MustCompile(`^[a-zA-Z]+$`).MatchString(u.Firstname)
+}
+
+func (u *User) ValidateLastname() bool {
+	return len(u.Lastname) >= 1 && len(u.Lastname) <= 20 && regexp.MustCompile(`^[a-zA-Z]+$`).MatchString(u.Lastname)
+}
+
+func (u *User) ValidateEmail() bool {
+	return regexp.MustCompile(`^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$`).MatchString(u.Email)
+}
+
+func (u *User) ValidateStatus() bool {
+	return u.Status == "A" || u.Status == "I" || u.Status == "T"
+}
+
+func (u *User) ValidateDepartment() bool {
+	return len(u.Department) >= 1 && len(u.Department) <= 20
 }

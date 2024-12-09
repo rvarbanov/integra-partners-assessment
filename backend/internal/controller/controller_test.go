@@ -13,8 +13,13 @@ import (
 
 var (
 	mockUser = model.User{
-		ID:       1,
-		Username: "testuser",
+		ID:         1,
+		Username:   "testuser",
+		Firstname:  "Test",
+		Lastname:   "User",
+		Email:      "testuser@example.com",
+		Status:     "A",
+		Department: "IT",
 	}
 )
 

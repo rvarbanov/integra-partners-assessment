@@ -249,6 +249,7 @@ func getParamID(c echo.Context) (int, error) {
 	return ID, err
 }
 
+// TODO: add a more robust validation for the user body
 /*
 func validateUserBody(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {

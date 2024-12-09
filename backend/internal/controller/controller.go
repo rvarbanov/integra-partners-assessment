@@ -23,6 +23,11 @@ func NewController(dao dao.DaoInterface) *Controller {
 }
 
 func (ctrl *Controller) CreateUser(user model.User) (int, error) {
+	// validate the user
+	if !user.IsValid() {
+		return 0, fmt.Errorf("invalid user data")
+	}
+
 	// return an error if the username is already taken
 	userWithMatchingUsername, err := ctrl.GetUserByUsername(user.Username)
 	if err != nil {
@@ -41,6 +46,11 @@ func (ctrl *Controller) GetUser(ID int) (model.User, error) {
 }
 
 func (ctrl *Controller) UpdateUser(ID int, user model.User) (model.User, error) {
+	// validate the user
+	if !user.IsValid() {
+		return model.User{}, fmt.Errorf("invalid user data")
+	}
+
 	existingUser, err := ctrl.GetUser(ID)
 	if err != nil {
 		return model.User{}, err
