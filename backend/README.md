@@ -182,6 +182,25 @@ Error responses follow this format:
 - [Gomega](https://github.com/onsi/gomega) - Matcher/assertion library
 - [Swag](https://github.com/swaggo/swag) - Swagger documentation generator
 
+## Build and Run
+
+```bash
+make build
+make run
+```
+
+## DB Migration
+After the app is build and run, you can run the migration to create the user table.
+
+```bash
+make migrate
+```
+
+## API Swagger Documentation
+```bash
+make doc
+```
+
 ## Testing
 
 Run tests with coverage report:

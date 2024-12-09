@@ -40,7 +40,7 @@ describe('UserService', () => {
       expect(users).toEqual([mockUser]);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/users');
+    const req = httpMock.expectOne('http://localhost:8080/api/v1/users');
     expect(req.request.method).toBe('GET');
     req.flush(mockUsers);
   });
@@ -50,7 +50,7 @@ describe('UserService', () => {
       expect(user).toEqual(mockUser);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/user/1');
+    const req = httpMock.expectOne('http://localhost:8080/api/v1/user/1');
     expect(req.request.method).toBe('GET');
     req.flush(mockUser);
   });
@@ -60,7 +60,7 @@ describe('UserService', () => {
       expect(user).toEqual(mockUser);
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/user');
+    const req = httpMock.expectOne('http://localhost:8080/api/v1/user');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(mockUser);
     req.flush(mockUser);
@@ -71,7 +71,7 @@ describe('UserService', () => {
       expect(user).toEqual(mockUser);
     });
 
-    const req = httpMock.expectOne(`http://localhost:8080/api/user/${mockUser.user_id}`);
+    const req = httpMock.expectOne(`http://localhost:8080/api/v1/user/${mockUser.user_id}`);
     expect(req.request.method).toBe('PUT');
     expect(req.request.body).toEqual(mockUser);
     req.flush(mockUser);
@@ -82,7 +82,7 @@ describe('UserService', () => {
       expect(response).toBeUndefined();
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/user/1');
+    const req = httpMock.expectOne('http://localhost:8080/api/v1/user/1');
     expect(req.request.method).toBe('DELETE');
   });
 
@@ -93,7 +93,7 @@ describe('UserService', () => {
       }
     });
 
-    const req = httpMock.expectOne('http://localhost:8080/api/users');
+    const req = httpMock.expectOne('http://localhost:8080/api/v1/users');
     req.flush('Error', { 
       status: 409, 
       statusText: 'Conflict'
