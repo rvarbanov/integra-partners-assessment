@@ -72,7 +72,7 @@ var _ = Describe("API", func() {
 
 			err := api.createUser(c)
 			Expect(err).To(BeNil())
-			Expect(res.Code).To(Equal(http.StatusOK))
+			Expect(res.Code).To(Equal(http.StatusCreated))
 		})
 
 		It("should return an internal server error if the db returns an error", func() {

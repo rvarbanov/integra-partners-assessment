@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"time"
 
 	"backend/internal/config"
 	"backend/internal/model"
@@ -151,6 +152,7 @@ func (d *DB) CreateUser(user model.User) (int, error) {
 }
 
 func (d *DB) UpdateUser(ID int, user model.User) (model.User, error) {
+	updatedAt := time.Now()
 	sqUpdatedUser := sq.Update("users").
 		Set("user_name", user.Username).
 		Set("first_name", user.Firstname).
@@ -158,6 +160,7 @@ func (d *DB) UpdateUser(ID int, user model.User) (model.User, error) {
 		Set("email", user.Email).
 		Set("user_status", user.Status).
 		Set("department", user.Department).
+		Set("updated_at", updatedAt).
 		Where(sq.Eq{"user_id": ID}).
 		Suffix("RETURNING user_id, user_name, first_name, last_name, email, user_status, department, created_at, updated_at").
 		PlaceholderFormat(sq.Dollar)

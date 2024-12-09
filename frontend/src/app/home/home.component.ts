@@ -32,7 +32,9 @@ export class HomeComponent implements OnInit {
     'last_name', 
     'email', 
     'user_status', 
-    'department', 
+    'department',
+    'created_at',
+    'updated_at',
     'actions'
   ];
   users: User[] = [];

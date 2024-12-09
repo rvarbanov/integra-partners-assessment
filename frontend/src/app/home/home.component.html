@@ -54,6 +54,18 @@
         <td mat-cell *matCellDef="let user">{{user.department}}</td>
       </ng-container>
 
+      <!-- Created At Column -->
+      <ng-container matColumnDef="created_at">
+        <th mat-header-cell *matHeaderCellDef> Created </th>
+        <td mat-cell *matCellDef="let user"> {{user.created_at | date:'medium'}} </td>
+      </ng-container>
+
+      <!-- Updated At Column -->
+      <ng-container matColumnDef="updated_at">
+        <th mat-header-cell *matHeaderCellDef> Updated </th>
+        <td mat-cell *matCellDef="let user"> {{user.updated_at | date:'medium'}} </td>
+      </ng-container>
+
       <!-- Actions Column -->
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef>Actions</th>
