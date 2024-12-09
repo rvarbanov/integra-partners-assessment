@@ -75,8 +75,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "User created successfully",
+                    "201": {
+                        "description": "User created successfully, returns user ID",
                         "schema": {
                             "allOf": [
                                 {
@@ -94,7 +94,25 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid request body",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.Response"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "409": {
+                        "description": "Username already exists",
                         "schema": {
                             "allOf": [
                                 {
@@ -112,7 +130,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "allOf": [
                                 {
@@ -134,7 +152,7 @@ const docTemplate = `{
         },
         "/api/v1/user/{id}": {
             "get": {
-                "description": "Returns a user by ID",
+                "description": "Retrieves a user by their ID",
                 "consumes": [
                     "application/json"
                 ],
@@ -144,7 +162,7 @@ const docTemplate = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "Get a user by ID",
+                "summary": "Get user by ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -174,7 +192,7 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Invalid user ID",
                         "schema": {
                             "allOf": [
                                 {
@@ -210,7 +228,7 @@ const docTemplate = `{
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Internal server error",
                         "schema": {
                             "allOf": [
                                 {

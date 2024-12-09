@@ -61,7 +61,7 @@ Response:
     "department": "Engineering"
   }
 }
-``
+```
 
 #### Update User
 Request:
@@ -186,13 +186,6 @@ Run tests with coverage report:
 make mock
 make test
 ```
-
-##TODO:
-- Add db migration
-  - create db user/password
-  - create the user table
-- Add docker-compose
-  - testing
 
 ## Improvement opportunities:
 - Add logging
