@@ -1,5 +1,3 @@
-# help me init this file
-
 test:
 	go test ./...
 
